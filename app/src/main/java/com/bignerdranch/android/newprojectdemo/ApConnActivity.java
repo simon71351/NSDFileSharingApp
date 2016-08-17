@@ -105,6 +105,7 @@ public class ApConnActivity extends AppCompatActivity {
                     Intent intent = new Intent(ApConnActivity.this, MainActivity.class);
                     intent.putExtra("ApStatus", true);
                     startActivity(intent);
+                    finish();
                 }
             });
 
@@ -185,6 +186,7 @@ public class ApConnActivity extends AppCompatActivity {
                         }
                     });
 
+                    finish();
 
                 }
             });

@@ -34,7 +34,7 @@ public class AudioGalleryFragment extends Fragment {
     int count;
     private MusicAdapter musicAdapter;
     private ArrayList<SongModel> songList;
-    private ArrayList<Integer> selectedPos;
+    private ArrayList<Integer> selectedPos = new ArrayList<Integer>();
 
     class SongModel{
         private boolean checked;
@@ -96,20 +96,29 @@ public class AudioGalleryFragment extends Fragment {
 
 
             musiclist.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
-            musiclist.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+
+            musiclist.setMultiChoiceModeListener(listViewListener);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return view;
+    }
+
+    AbsListView.MultiChoiceModeListener listViewListener = new AbsListView.MultiChoiceModeListener() {
 
 
-                @Override
-                public void onItemCheckedStateChanged(android.view.ActionMode actionMode, int i, long l, boolean b) {
-                    int selectCount = musiclist.getCheckedItemCount();
-                    switch (selectCount) {
-                        case 1:
-                            actionMode.setSubtitle("One item selected");
-                            break;
-                        default:
-                            actionMode.setSubtitle("" + selectCount + " items selected");
-                            break;
-                    }
+        @Override
+        public void onItemCheckedStateChanged(android.view.ActionMode actionMode, int i, long l, boolean b) {
+            int selectCount = musiclist.getCheckedItemCount();
+            switch (selectCount) {
+                case 1:
+                    actionMode.setSubtitle("One item selected");
+                    break;
+                default:
+                    actionMode.setSubtitle("" + selectCount + " items selected");
+                    break;
+            }
 
 
 //                if(musiclist.getChildAt(i).findViewById(R.id.check_icon).getVisibility() == View.INVISIBLE){
@@ -120,12 +129,12 @@ public class AudioGalleryFragment extends Fragment {
 
 //                try {
 
-                    int pos = i - musiclist.getFirstVisiblePosition();
-                    if (songList.get(i).isChecked()) {
-                        musiclist.getChildAt(pos).findViewById(R.id.check_icon).setVisibility(View.INVISIBLE);
-                        songList.get(i).setChecked(false);
-                        selectedPos.remove(selectedPos.lastIndexOf(i));
-                    } else {
+            int pos = i - musiclist.getFirstVisiblePosition();
+            if (songList.get(i).isChecked()) {
+                musiclist.getChildAt(pos).findViewById(R.id.check_icon).setVisibility(View.INVISIBLE);
+                songList.get(i).setChecked(false);
+                selectedPos.remove(selectedPos.lastIndexOf(i));
+            } else {
 //                        Log.e("ChildCount", "ChildCount: "+musiclist.getChildCount());
                             /*Log.e("Position", "Position: "+i);
                         Log.e("FirstVisible", "FirstVisiblePos: "+musiclist.getFirstVisiblePosition()
@@ -133,10 +142,10 @@ public class AudioGalleryFragment extends Fragment {
                                 +", Selected: "+musiclist.getSelectedItemPosition());*/
 
 
-                        musiclist.getChildAt(pos).findViewById(R.id.check_icon).setVisibility(View.VISIBLE);
-                        songList.get(i).setChecked(true);
-                        selectedPos.add(i);
-                    }
+                musiclist.getChildAt(pos).findViewById(R.id.check_icon).setVisibility(View.VISIBLE);
+                songList.get(i).setChecked(true);
+                selectedPos.add(i);
+            }
 //                }catch (Exception e){
 //                    e.printStackTrace();
 //                }
@@ -145,40 +154,42 @@ public class AudioGalleryFragment extends Fragment {
 
                 /*ImageAdapter.MarkableImageView imageView = (ImageAdapter.MarkableImageView) gridView.getChildAt(position);
                 imageView.setChecked(checked);*/
-                }
-
-                @Override
-                public boolean onCreateActionMode(android.view.ActionMode actionMode, Menu menu) {
-                    actionMode.setTitle("Select Items");
-                    actionMode.setSubtitle("One item selected");
-                    selectedPos = new ArrayList<Integer>();
-                    return true;
-                }
-
-                @Override
-                public boolean onPrepareActionMode(android.view.ActionMode actionMode, Menu menu) {
-                    return false;
-                }
-
-                @Override
-                public boolean onActionItemClicked(android.view.ActionMode actionMode, MenuItem menuItem) {
-                    return false;
-                }
-
-                @Override
-                public void onDestroyActionMode(android.view.ActionMode actionMode) {
-                    musicAdapter.removeSelection(selectedPos);
-                }
-            });
-        }catch(Exception e){
-            e.printStackTrace();
         }
 
-        return view;
+        @Override
+        public boolean onCreateActionMode(android.view.ActionMode actionMode, Menu menu) {
+            actionMode.setTitle("Select Items");
+            actionMode.setSubtitle("One item selected");
+            selectedPos = new ArrayList<Integer>();
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(android.view.ActionMode actionMode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(android.view.ActionMode actionMode, MenuItem menuItem) {
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(android.view.ActionMode actionMode) {
+            musicAdapter.removeSelection(selectedPos);
+        }
+    };
+
+
+    public void removeAudioSelection(){
+        if(selectedPos.size() != 0){
+            musicAdapter.removeSelection(selectedPos);
+            //listViewListener.onDestroyActionMode(null);
+            musiclist.setChoiceMode(AbsListView.CHOICE_MODE_NONE);
+            musiclist.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
+        }
+
     }
-
-
-
 
 
     private AdapterView.OnItemClickListener musicgridlistener = new AdapterView.OnItemClickListener() {
@@ -227,6 +238,7 @@ public class AudioGalleryFragment extends Fragment {
 
         public void removeSelection(ArrayList<Integer> selectionList){
             for(int i = 0; i < selectionList.size(); i++){
+                musiclist.getChildAt(selectionList.get(i).intValue()).findViewById(R.id.check_icon).setVisibility(View.INVISIBLE);
                 songList.get(selectionList.get(i).intValue()).setChecked(false);
                 Log.e("SelectionList", "SelectionList: "+selectionList.get(i).intValue());
             }

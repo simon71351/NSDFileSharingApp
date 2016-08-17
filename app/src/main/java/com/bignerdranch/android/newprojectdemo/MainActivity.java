@@ -14,7 +14,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
@@ -48,44 +47,44 @@ public class MainActivity extends AppCompatActivity {
     FileTransferService transferService;
     int selectedTab = 0;
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-
-        if(selectedTab == 0) {
-//            viewPagerAdapter.getImageGalleryFragment().getGridView().clearChoices();
+//    @Override
+//    public void onBackPressed() {
+//        super.onBackPressed();
 //
-            final GridView gridView = viewPagerAdapter.getImageGalleryFragment().getGridView();
-            Object[] objArr = viewPagerAdapter.getImageGalleryFragment().getSelectedPos();
-//            for(int i = 0; i < gridView.getCount(); i++){
-//                gridView.setItemChecked(i, false);
+//        if(selectedTab == 0) {
+////            viewPagerAdapter.getImageGalleryFragment().getGridView().clearChoices();
+////
+//            final GridView gridView = viewPagerAdapter.getImageGalleryFragment().getGridView();
+//            Object[] objArr = viewPagerAdapter.getImageGalleryFragment().getSelectedPos();
+////            for(int i = 0; i < gridView.getCount(); i++){
+////                gridView.setItemChecked(i, false);
+////            }
+////
+////            gridView.post(new Runnable() {
+////                @Override
+////                public void run() {
+////                    gridView.setChoiceMode(ListView.CHOICE_MODE_NONE);
+////                }
+////            });
+//
+//            Log.e("ToastValue", "Toast value: "+selectedTab);
+//
+//            ArrayList<ImageGalleryFragment.ImageModel> list = viewPagerAdapter.getImageGalleryFragment().getModelList();
+//            for(int i = 0; i < list.size(); i++){
+//                list.get(i).setChecked(false);
 //            }
 //
-//            gridView.post(new Runnable() {
-//                @Override
-//                public void run() {
-//                    gridView.setChoiceMode(ListView.CHOICE_MODE_NONE);
-//                }
-//            });
-
-            Log.e("ToastValue", "Toast value: "+selectedTab);
-
-            ArrayList<ImageGalleryFragment.ImageModel> list = viewPagerAdapter.getImageGalleryFragment().getModelList();
-            for(int i = 0; i < list.size(); i++){
-                list.get(i).setChecked(false);
-            }
-
-            for(int i = 0; i < objArr.length; i++ )
-                ((ImageGalleryFragment.MarkableImageView)gridView.getChildAt((int)objArr[i])).setChecked(false);
-
-            viewPagerAdapter.getImageGalleryFragment().getAdapter().notifyDataSetChanged();
-        }
-        else if(selectedTab == 1) viewPagerAdapter.getAudioGalleryFragment();
-        else if (selectedTab == 2) viewPagerAdapter.getVideoGalleryFragment();
-
-
-
-    }
+//            for(int i = 0; i < objArr.length; i++ )
+//                ((ImageGalleryFragment.MarkableImageView)gridView.getChildAt((int)objArr[i])).setChecked(false);
+//
+//            viewPagerAdapter.getImageGalleryFragment().getAdapter().notifyDataSetChanged();
+//        }
+//        else if(selectedTab == 1) viewPagerAdapter.getAudioGalleryFragment();
+//        else if (selectedTab == 2) viewPagerAdapter.getVideoGalleryFragment();
+//
+//
+//
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -230,6 +229,15 @@ public class MainActivity extends AppCompatActivity {
 
                     new FileClient(inetAddress, port, MainActivity.this, selectedPaths);
 
+
+                    if(selectedTabPos == 0){
+                        viewPagerAdapter.getImageGalleryFragment().removeImageSelection();
+                    }else if(selectedTabPos == 1){
+                        viewPagerAdapter.getAudioGalleryFragment().removeAudioSelection();
+                    }else if(selectedTabPos == 2){
+                        viewPagerAdapter.getVideoGalleryFragment().removeAudioSelection();
+                    }
+
                 }catch(Exception e){
                     e.printStackTrace();
                 }
@@ -302,6 +310,17 @@ public class MainActivity extends AppCompatActivity {
 
                 //Toast.makeText(getApplication(), "SelectedTab: "+selectedTab, Toast.LENGTH_SHORT).show();
                 selectedTabPos = selectedTab;
+
+                if(selectedTabPos == 0){
+                    viewPagerAdapter.getAudioGalleryFragment().removeAudioSelection();
+                    viewPagerAdapter.getVideoGalleryFragment().removeAudioSelection();
+                }else if(selectedTabPos == 1){
+                    viewPagerAdapter.getImageGalleryFragment().removeImageSelection();
+                    viewPagerAdapter.getVideoGalleryFragment().removeAudioSelection();
+                }else if(selectedTabPos == 2){
+                    viewPagerAdapter.getImageGalleryFragment().removeImageSelection();
+                    viewPagerAdapter.getAudioGalleryFragment().removeAudioSelection();
+                }
             }
 
             @Override
@@ -324,7 +343,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 selectedTabPos = position;
-                Toast.makeText(getApplication(), "SelectedTab: "+position, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplication(), "SelectedTab: "+position, Toast.LENGTH_SHORT).show();
 
                 switch (position){
                     case 0:
@@ -335,19 +354,42 @@ public class MainActivity extends AppCompatActivity {
                         image.setIcon(R.drawable.ic_image);
                         music.setIcon(R.drawable.ic_music_dark);
                         video.setIcon(R.drawable.ic_video_dark);
+
+
                         break;
                     case 1:
                         image.setIcon(R.drawable.ic_image_dark);
                         music.setIcon(R.drawable.ic_music);
                         video.setIcon(R.drawable.ic_video_dark);
+
+
                         break;
                     case 2:
                         image.setIcon(R.drawable.ic_image_dark);
                         music.setIcon(R.drawable.ic_music_dark);
                         video.setIcon(R.drawable.ic_video);
+
+
                         break;
                 }
 
+
+                try {
+
+
+                    if (selectedTabPos == 0) {
+                        viewPagerAdapter.getAudioGalleryFragment().removeAudioSelection();
+                        viewPagerAdapter.getVideoGalleryFragment().removeAudioSelection();
+                    } else if (selectedTabPos == 1) {
+                        viewPagerAdapter.getImageGalleryFragment().removeImageSelection();
+                        viewPagerAdapter.getVideoGalleryFragment().removeAudioSelection();
+                    } else if (selectedTabPos == 2) {
+                        viewPagerAdapter.getImageGalleryFragment().removeImageSelection();
+                        viewPagerAdapter.getAudioGalleryFragment().removeAudioSelection();
+                    }
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
             }
 
             @Override

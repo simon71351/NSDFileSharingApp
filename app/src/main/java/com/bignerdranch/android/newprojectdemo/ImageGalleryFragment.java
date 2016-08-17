@@ -27,6 +27,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -41,7 +42,7 @@ public class ImageGalleryFragment extends Fragment{
     private Cursor cursor;
     private int columnIndex;
     private ArrayList<ImageModel> modelList;
-    private ArrayList<Integer> selectedPos;
+    private ArrayList<Integer> selectedPos = new ArrayList<Integer>();;
     private ImageAdapter adapter;
     //private ImageCursorAdapter adapter;
     GridView gridView;
@@ -90,6 +91,14 @@ public class ImageGalleryFragment extends Fragment{
         modelList = new ArrayList<>();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+
+            Toast.makeText(getContext(), menuItem.getItemId(), Toast.LENGTH_SHORT).show();
+
+        return super.onOptionsItemSelected(menuItem);
+    }
+
     public String[] getSelectedImagePaths(){
 
         String[] imagePaths = new String[selectedPos.size()];
@@ -98,6 +107,8 @@ public class ImageGalleryFragment extends Fragment{
         }
         return imagePaths;
     }
+
+
 
     @Nullable
     @Override
@@ -131,7 +142,7 @@ public class ImageGalleryFragment extends Fragment{
 //
 //            int imageWidth = width / 3;
 //            int imageHeight = height / 3;
-//            AbsListView.LayoutParams parms = new AbsListView.LayoutParams(imageWidth , imageHeight);
+//            android.widget.RelativeLayout.LayoutParams parms = new android.widget.RelativeLayout.LayoutParams(imageWidth , imageHeight);
 
 
             gridView = (GridView) view.findViewById(R.id.gridview);
@@ -168,65 +179,8 @@ public class ImageGalleryFragment extends Fragment{
         });*/
 
             gridView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
-            gridView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
 
-
-                @Override
-                public void onItemCheckedStateChanged(android.view.ActionMode actionMode, int i, long l, boolean b) {
-                    int selectCount = gridView.getCheckedItemCount();
-                    switch (selectCount) {
-                        case 1:
-                            actionMode.setSubtitle("One item selected");
-                            break;
-                        default:
-                            actionMode.setSubtitle("" + selectCount + " items selected");
-                            break;
-                    }
-
-
-                    int pos = i - gridView.getFirstVisiblePosition();
-                    try {
-                        MarkableImageView imageView = (MarkableImageView) gridView.getChildAt(pos);
-                        if (modelList.get(i).isChecked()) {
-                            imageView.setChecked(false);
-                            modelList.get(i).setChecked(false);
-                            selectedPos.remove(selectedPos.lastIndexOf(i));
-                        } else {
-                            imageView.setChecked(true);
-                            modelList.get(i).setChecked(true);
-                            selectedPos.add(i);
-                        }
-
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                }
-
-                @Override
-                public boolean onCreateActionMode(android.view.ActionMode actionMode, Menu menu) {
-                    actionMode.setTitle("Select Items");
-                    actionMode.setSubtitle("One item selected");
-                    selectedPos = new ArrayList<Integer>();
-                    return true;
-                }
-
-                @Override
-                public boolean onPrepareActionMode(android.view.ActionMode actionMode, Menu menu) {
-                    return false;
-                }
-
-                @Override
-                public boolean onActionItemClicked(android.view.ActionMode actionMode, MenuItem menuItem) {
-                    return false;
-                }
-
-                @Override
-                public void onDestroyActionMode(android.view.ActionMode actionMode) {
-                    adapter.removeSelection(selectedPos);
-                }
-            });
+            gridView.setMultiChoiceModeListener(girdViewLsitener);
 
 
             gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -258,6 +212,75 @@ public class ImageGalleryFragment extends Fragment{
         }
         return view;
     }
+
+    AbsListView.MultiChoiceModeListener girdViewLsitener = new AbsListView.MultiChoiceModeListener() {
+
+        Menu createdMenu;
+
+        @Override
+        public void onItemCheckedStateChanged(android.view.ActionMode actionMode, int i, long l, boolean b) {
+            int selectCount = gridView.getCheckedItemCount();
+            switch (selectCount) {
+                case 1:
+                    actionMode.setSubtitle("One item selected");
+                    break;
+                default:
+                    actionMode.setSubtitle("" + selectCount + " items selected");
+                    break;
+            }
+
+
+            int pos = i - gridView.getFirstVisiblePosition();
+            try {
+                MarkableImageView imageView = (MarkableImageView) gridView.getChildAt(pos);
+                if (modelList.get(i).isChecked()) {
+                    imageView.setChecked(false);
+                    modelList.get(i).setChecked(false);
+                    selectedPos.remove(selectedPos.lastIndexOf(i));
+                } else {
+                    imageView.setChecked(true);
+                    modelList.get(i).setChecked(true);
+                    selectedPos.add(i);
+                }
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            //Toast.makeText(getContext(), createdMenu.size(), Toast.LENGTH_SHORT).show();
+
+
+        }
+
+        @Override
+        public boolean onCreateActionMode(android.view.ActionMode actionMode, Menu menu) {
+            actionMode.setTitle("Select Items");
+            actionMode.setSubtitle("One item selected");
+            selectedPos = new ArrayList<Integer>();
+
+            //createdMenu = menu;
+            //Log.e("Menu", "Menu size: "+menu.size());
+
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(android.view.ActionMode actionMode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(android.view.ActionMode actionMode, MenuItem menuItem) {
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(android.view.ActionMode actionMode) {
+            adapter.removeSelection(selectedPos);
+
+        }
+    };
 
 //    class ImageLoaderTask extends AsyncTask<Void, Void, Cursor>{
 //        @Override
@@ -316,6 +339,16 @@ public class ImageGalleryFragment extends Fragment{
 //        }
 //    }
 
+    public void removeImageSelection(){
+        if(selectedPos.size() != 0) {
+            adapter.removeSelection(selectedPos);
+            gridView.setChoiceMode(AbsListView.CHOICE_MODE_NONE);
+            gridView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
+        }
+        //girdViewLsitener.onDestroyActionMode(null);
+
+    }
+
     // Adapter for Grid View
     private class ImageAdapter extends BaseAdapter {
 
@@ -343,6 +376,9 @@ public class ImageGalleryFragment extends Fragment{
 
         public void removeSelection(ArrayList<Integer> selectionList){
             for(int i = 0; i < selectionList.size(); i++){
+                MarkableImageView imageView = (MarkableImageView) gridView.getChildAt(selectionList.get(i).intValue());
+                imageView.setChecked(false);
+
                 modelList.get(selectionList.get(i).intValue()).setChecked(false);
                 Log.e("SelectionList", "SelectionList: "+selectionList.get(i).intValue());
             }
@@ -393,7 +429,7 @@ public class ImageGalleryFragment extends Fragment{
                     .centerCrop()
                     .into(imageView);
             //this is some comment
-
+            imageView.setChecked(modelList.get(position).isChecked());
 
             return imageView;
 

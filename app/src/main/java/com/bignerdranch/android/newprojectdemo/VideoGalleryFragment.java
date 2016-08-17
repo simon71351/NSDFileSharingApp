@@ -39,7 +39,7 @@ public class VideoGalleryFragment extends Fragment {
     int count;
     private MusicAdapter musicAdapter;
     private ArrayList<SongModel> songList;
-    private ArrayList<Integer> selectedPos;
+    private ArrayList<Integer> selectedPos = new ArrayList<Integer>();;
 
     class SongModel{
         private boolean checked;
@@ -218,6 +218,17 @@ public class VideoGalleryFragment extends Fragment {
         }
     };
 
+    public void removeAudioSelection(){
+
+        if(selectedPos.size() != 0){
+            musicAdapter.removeSelection(selectedPos);
+            //listViewListener.onDestroyActionMode(null);
+            musiclist.setChoiceMode(AbsListView.CHOICE_MODE_NONE);
+            musiclist.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
+        }
+
+    }
+
     public class MusicAdapter extends BaseAdapter {
         private Context mContext;
 
@@ -247,6 +258,7 @@ public class VideoGalleryFragment extends Fragment {
 
         public void removeSelection(ArrayList<Integer> selectionList){
             for(int i = 0; i < selectionList.size(); i++){
+                musiclist.getChildAt(selectionList.get(i).intValue()).findViewById(R.id.check_icon).setVisibility(View.INVISIBLE);
                 songList.get(selectionList.get(i).intValue()).setChecked(false);
                 Log.e("SelectionList", "SelectionList: "+selectionList.get(i).intValue());
             }
