@@ -2,6 +2,7 @@ package com.bignerdranch.android.newprojectdemo;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,6 +16,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -120,7 +122,20 @@ public class ImageGalleryFragment extends Fragment{
                 modelList.add(new ImageModel());
             }
 
+//            WindowManager wm = (WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE);
+//            Display display = wm.getDefaultDisplay();
+//            Point size = new Point();
+//            display.getSize(size);
+//            int width = size.x;
+//            int height = size.y;
+//
+//            int imageWidth = width / 3;
+//            int imageHeight = height / 3;
+//            AbsListView.LayoutParams parms = new AbsListView.LayoutParams(imageWidth , imageHeight);
+
+
             gridView = (GridView) view.findViewById(R.id.gridview);
+            //gridView.setLayoutParams(parms);
 
             adapter = new ImageAdapter(getContext());
 
@@ -341,9 +356,16 @@ public class ImageGalleryFragment extends Fragment{
 
             if (convertView == null) {
                 imageView = new MarkableImageView(getContext());
-                imageView.setLayoutParams(new GridView.LayoutParams(200, 220));
+
+                Resources r = Resources.getSystem();
+                float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100, r.getDisplayMetrics());
+
+                imageView.setLayoutParams(new GridView.LayoutParams((int)px, (int)px));
                 imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                imageView.setPadding(5,5,5,5);
+
+//                imageView.setLayoutParams(new GridView.LayoutParams(200, 220));
+//                imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+//                imageView.setPadding(5,5,5,5);
 
             } else {
                 imageView = (MarkableImageView) convertView;
