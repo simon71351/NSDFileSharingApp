@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
                 publishProgress(transferStatus);
                 if(transferStatus == 100) break;
 
-                Log.e("TransferStatus", "Transfer Status: " + transferStatus);
+                //Log.e("TransferStatus", "Transfer Status: " + transferStatus);
                 transferStatus = (int)(( (fileClient.getSendTotalFilesSize() * 1.0) / fileClient.getTotalFilesSize()) * 100);
             }
 
@@ -256,16 +256,16 @@ public class MainActivity extends AppCompatActivity {
                 try {
                      String[] selectedPaths = null;
       //              Toast.makeText(MainActivity.this, "Button gets clicked", Toast.LENGTH_SHORT).show();
-                    if(selectedTabPos == 0){
+                    if(selectedTabPos == 1){
                         selectedPaths = viewPagerAdapter.getImageGalleryFragment().getSelectedImagePaths();
 
                         Log.e("SelectedPath", "SelectedPath: "+selectedPaths.length);
                     }
-                    else if(selectedTabPos == 1){
+                    else if(selectedTabPos == 2){
                         selectedPaths = viewPagerAdapter.getAudioGalleryFragment().getSelectedSongs();
                         Log.e("SelectedPath", "SelectedPath: "+selectedPaths.length);
                     }
-                    else if(selectedTabPos == 2){
+                    else if(selectedTabPos == 3){
                         selectedPaths = viewPagerAdapter.getVideoGalleryFragment().getSelectedSongs();
                         Log.e("SelectedPath", "SelectedPath: "+selectedPaths.length);
                     }
@@ -310,16 +310,16 @@ public class MainActivity extends AppCompatActivity {
 //                        e.printStackTrace();
 //                    }
 
-                    viewPagerAdapter.getLogFragment().writeToLogFile(selectedPaths, true);
+                    viewPagerAdapter.getLogFragment().writeToLogFile(selectedPaths, false);
 
 
 
 
-                    if(selectedTabPos == 0){
+                    if(selectedTabPos == 1){
                         viewPagerAdapter.getImageGalleryFragment().removeImageSelection();
-                    }else if(selectedTabPos == 1){
-                        viewPagerAdapter.getAudioGalleryFragment().removeAudioSelection();
                     }else if(selectedTabPos == 2){
+                        viewPagerAdapter.getAudioGalleryFragment().removeAudioSelection();
+                    }else if(selectedTabPos == 3){
                         viewPagerAdapter.getVideoGalleryFragment().removeAudioSelection();
                     }
 
@@ -356,20 +356,21 @@ public class MainActivity extends AppCompatActivity {
          */
 
         //home.setText("Home");
-        image.setIcon(R.drawable.ic_image);
+        image.setIcon(R.drawable.ic_image_dark);
         music.setIcon(R.drawable.ic_music_dark);
         video.setIcon(R.drawable.ic_video_dark);
-        log.setIcon(R.drawable.ic_log_dark);
+        log.setIcon(R.drawable.ic_log);
 
         /*
         Adding the tab view to our tablayout at appropriate positions
         As I want home at first position I am passing home and 0 as argument to
         the tablayout and like wise for other tabs as well
          */
-        tabLayout.addTab(image, 0);
-        tabLayout.addTab(music, 1);
-        tabLayout.addTab(video, 2);
-        tabLayout.addTab(log, 3);
+        tabLayout.addTab(log, 0);
+        tabLayout.addTab(image, 1);
+        tabLayout.addTab(music, 2);
+        tabLayout.addTab(video, 3);
+
 
         /*
         TabTextColor sets the color for the title of the tabs, passing a ColorStateList here makes
@@ -401,19 +402,19 @@ public class MainActivity extends AppCompatActivity {
                 //Toast.makeText(getApplication(), "SelectedTab: "+selectedTab, Toast.LENGTH_SHORT).show();
                 selectedTabPos = selectedTab;
 
-                if(selectedTabPos == 0){
-                    viewPagerAdapter.getAudioGalleryFragment().removeAudioSelection();
-                    viewPagerAdapter.getVideoGalleryFragment().removeAudioSelection();
+                if(selectedTabPos == 0) {
+                    if(viewPagerAdapter.getImageGalleryFragment() != null) viewPagerAdapter.getImageGalleryFragment().removeImageSelection();
+                    if(viewPagerAdapter.getAudioGalleryFragment() != null) viewPagerAdapter.getAudioGalleryFragment().removeAudioSelection();
+                    if(viewPagerAdapter.getVideoGalleryFragment() != null) viewPagerAdapter.getVideoGalleryFragment().removeAudioSelection();
                 }else if(selectedTabPos == 1){
-                    viewPagerAdapter.getImageGalleryFragment().removeImageSelection();
-                    viewPagerAdapter.getVideoGalleryFragment().removeAudioSelection();
+                    if(viewPagerAdapter.getAudioGalleryFragment() != null) viewPagerAdapter.getAudioGalleryFragment().removeAudioSelection();
+                    if(viewPagerAdapter.getVideoGalleryFragment() != null) viewPagerAdapter.getVideoGalleryFragment().removeAudioSelection();
                 }else if(selectedTabPos == 2){
-                    viewPagerAdapter.getImageGalleryFragment().removeImageSelection();
-                    viewPagerAdapter.getAudioGalleryFragment().removeAudioSelection();
-                }else if(selectedTabPos == 3) {
-                    viewPagerAdapter.getImageGalleryFragment().removeImageSelection();
-                    viewPagerAdapter.getAudioGalleryFragment().removeAudioSelection();
-                    viewPagerAdapter.getVideoGalleryFragment().removeAudioSelection();
+                    if(viewPagerAdapter.getImageGalleryFragment() != null) viewPagerAdapter.getImageGalleryFragment().removeImageSelection();
+                    if(viewPagerAdapter.getVideoGalleryFragment() != null) viewPagerAdapter.getVideoGalleryFragment().removeAudioSelection();
+                }else if(selectedTabPos == 3){
+                    if(viewPagerAdapter.getImageGalleryFragment() != null) viewPagerAdapter.getImageGalleryFragment().removeImageSelection();
+                    if(viewPagerAdapter.getAudioGalleryFragment() != null) viewPagerAdapter.getAudioGalleryFragment().removeAudioSelection();
                 }
             }
 
@@ -441,6 +442,12 @@ public class MainActivity extends AppCompatActivity {
 
                 switch (position){
                     case 0:
+                        image.setIcon(R.drawable.ic_image_dark);
+                        music.setIcon(R.drawable.ic_music_dark);
+                        video.setIcon(R.drawable.ic_video_dark);
+                        log.setIcon(R.drawable.ic_log);
+                        break;
+                    case 1:
                         /*
                         setting Home as White and rest grey
                         and like wise for all other positions
@@ -452,44 +459,39 @@ public class MainActivity extends AppCompatActivity {
 
 
                         break;
-                    case 1:
+                    case 2:
                         image.setIcon(R.drawable.ic_image_dark);
                         music.setIcon(R.drawable.ic_music);
                         video.setIcon(R.drawable.ic_video_dark);
                         log.setIcon(R.drawable.ic_log_dark);
 
                         break;
-                    case 2:
+                    case 3:
                         image.setIcon(R.drawable.ic_image_dark);
                         music.setIcon(R.drawable.ic_music_dark);
                         video.setIcon(R.drawable.ic_video);
                         log.setIcon(R.drawable.ic_log_dark);
 
                         break;
-                    case 3:
-                        image.setIcon(R.drawable.ic_image_dark);
-                        music.setIcon(R.drawable.ic_music_dark);
-                        video.setIcon(R.drawable.ic_video_dark);
-                        log.setIcon(R.drawable.ic_log);
                 }
 
 
                 try {
 
-
                     if (selectedTabPos == 0) {
-                        viewPagerAdapter.getAudioGalleryFragment().removeAudioSelection();
-                        viewPagerAdapter.getVideoGalleryFragment().removeAudioSelection();
-                    } else if (selectedTabPos == 1) {
-                        viewPagerAdapter.getImageGalleryFragment().removeImageSelection();
-                        viewPagerAdapter.getVideoGalleryFragment().removeAudioSelection();
+                        if(viewPagerAdapter.getImageGalleryFragment() != null) viewPagerAdapter.getImageGalleryFragment().removeImageSelection();
+                        if(viewPagerAdapter.getAudioGalleryFragment() != null) viewPagerAdapter.getAudioGalleryFragment().removeAudioSelection();
+                        if(viewPagerAdapter.getVideoGalleryFragment() != null) viewPagerAdapter.getVideoGalleryFragment().removeAudioSelection();
+                    }
+                    else if (selectedTabPos == 1) {
+                        if(viewPagerAdapter.getAudioGalleryFragment() != null) viewPagerAdapter.getAudioGalleryFragment().removeAudioSelection();
+                        if(viewPagerAdapter.getVideoGalleryFragment() != null) viewPagerAdapter.getVideoGalleryFragment().removeAudioSelection();
                     } else if (selectedTabPos == 2) {
-                        viewPagerAdapter.getImageGalleryFragment().removeImageSelection();
-                        viewPagerAdapter.getAudioGalleryFragment().removeAudioSelection();
-                    }else if (selectedTabPos == 3) {
-                        viewPagerAdapter.getImageGalleryFragment().removeImageSelection();
-                        viewPagerAdapter.getAudioGalleryFragment().removeAudioSelection();
-                        viewPagerAdapter.getVideoGalleryFragment().removeAudioSelection();
+                        if(viewPagerAdapter.getImageGalleryFragment() != null) viewPagerAdapter.getImageGalleryFragment().removeImageSelection();
+                        if(viewPagerAdapter.getVideoGalleryFragment() != null) viewPagerAdapter.getVideoGalleryFragment().removeAudioSelection();
+                    } else if (selectedTabPos == 3) {
+                        if(viewPagerAdapter.getImageGalleryFragment() != null) viewPagerAdapter.getImageGalleryFragment().removeImageSelection();
+                        if(viewPagerAdapter.getAudioGalleryFragment() != null) viewPagerAdapter.getAudioGalleryFragment().removeAudioSelection();
                     }
                 }catch(Exception e){
                     e.printStackTrace();

@@ -163,7 +163,16 @@ public class FileTransferService {
 
                     }
 
-                    mViewPagerAdapter.getLogFragment().writeToLogFile(createdFilePaths, false);
+
+                    final String[] finalCreatedFilePaths = createdFilePaths;
+                    Log.e("ServerWritingFile", "Server writing files: "+createdFilePaths.length);
+                    mNsdChatActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mViewPagerAdapter.getLogFragment().writeToLogFile(finalCreatedFilePaths, true);
+                        }
+                    });
+
 
                     bos.close();
                     input.close();

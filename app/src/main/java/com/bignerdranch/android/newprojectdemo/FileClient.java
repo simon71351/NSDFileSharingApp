@@ -31,12 +31,12 @@ class FileClient{
 
 
     public long getTotalFilesSize() {
-        Log.e("FileSize", "TotalFilesSize: "+totalFilesSize);
+        //Log.e("FileSize", "TotalFilesSize: "+totalFilesSize);
         return totalFilesSize;
     }
 
     public long getSendTotalFilesSize() {
-        Log.e("FileSize", "SendTotalFilesSize: "+sendTotalFilesSize);
+        //Log.e("FileSize", "SendTotalFilesSize: "+sendTotalFilesSize);
         return sendTotalFilesSize;
     }
 
@@ -103,7 +103,7 @@ class FileClient{
                     String fileNamePart = paths[i].substring(idx);
 
                     dos.writeUTF(fileNamePart);
-                    Log.e("NamePart", "Name part: " + fileNamePart);
+                    //Log.e("NamePart", "Name part: " + fileNamePart);
                     sendFile = new File(paths[i]);
 
 
