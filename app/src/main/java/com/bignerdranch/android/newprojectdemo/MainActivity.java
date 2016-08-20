@@ -1,10 +1,13 @@
 package com.bignerdranch.android.newprojectdemo;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
@@ -43,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     NsdHelper mNsdHelper;
     FileTransferService transferService;
     int selectedTab = 0;
+    boolean startDiscover = true;
 
 //    @Override
 //    public void onBackPressed() {
@@ -88,6 +92,57 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
         finish();
+    }
+
+    class DelayTask extends AsyncTask<FileClient, Integer, String> {
+        int count = 0;
+        ProgressDialog progressDialog;
+
+
+        @Override
+        protected void onPreExecute() {
+            //pb.setVisibility(ProgressBar.VISIBLE);
+            progressDialog = new ProgressDialog(MainActivity.this);
+
+            progressDialog.setMessage("Sending File");
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+
+            runOnUiThread(new Runnable(){
+                @Override
+                public void run() {
+                    progressDialog.show();
+                }
+            });
+
+        }
+
+        @Override
+        protected String doInBackground(FileClient... params) {
+
+            FileClient fileClient = params[0];
+
+            int transferStatus = (int)(( (fileClient.getSendTotalFilesSize() * 1.0) / fileClient.getTotalFilesSize()) * 100);
+
+            while (true) {
+                SystemClock.sleep(200);
+
+                publishProgress(transferStatus);
+                if(transferStatus == 100) break;
+
+                Log.e("TransferStatus", "Transfer Status: " + transferStatus);
+                transferStatus = (int)(( (fileClient.getSendTotalFilesSize() * 1.0) / fileClient.getTotalFilesSize()) * 100);
+            }
+
+            SystemClock.sleep(1000);
+            if(transferStatus == 100) progressDialog.dismiss();
+
+            return "Complete";
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            progressDialog.setProgress(values[0]);
+        }
     }
 
     @Override
@@ -231,7 +286,8 @@ public class MainActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-                    new FileClient(inetAddress, port, MainActivity.this, selectedPaths);
+                    FileClient fileClient = new FileClient(inetAddress, port, MainActivity.this, selectedPaths);
+                    new DelayTask().execute(fileClient);
 
 
                     if(selectedTabPos == 0){
@@ -266,6 +322,7 @@ public class MainActivity extends AppCompatActivity {
         final TabLayout.Tab image = tabLayout.newTab();
         final TabLayout.Tab music = tabLayout.newTab();
         final TabLayout.Tab video = tabLayout.newTab();
+        final TabLayout.Tab log = tabLayout.newTab();
 
         /*
         Setting Title text for our tabs respectively
@@ -275,6 +332,7 @@ public class MainActivity extends AppCompatActivity {
         image.setIcon(R.drawable.ic_image);
         music.setIcon(R.drawable.ic_music_dark);
         video.setIcon(R.drawable.ic_video_dark);
+        log.setIcon(R.drawable.ic_log_dark);
 
         /*
         Adding the tab view to our tablayout at appropriate positions
@@ -284,6 +342,7 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.addTab(image, 0);
         tabLayout.addTab(music, 1);
         tabLayout.addTab(video, 2);
+        tabLayout.addTab(log, 3);
 
         /*
         TabTextColor sets the color for the title of the tabs, passing a ColorStateList here makes
@@ -324,6 +383,10 @@ public class MainActivity extends AppCompatActivity {
                 }else if(selectedTabPos == 2){
                     viewPagerAdapter.getImageGalleryFragment().removeImageSelection();
                     viewPagerAdapter.getAudioGalleryFragment().removeAudioSelection();
+                }else if(selectedTabPos == 3) {
+                    viewPagerAdapter.getImageGalleryFragment().removeImageSelection();
+                    viewPagerAdapter.getAudioGalleryFragment().removeAudioSelection();
+                    viewPagerAdapter.getVideoGalleryFragment().removeAudioSelection();
                 }
             }
 
@@ -358,6 +421,7 @@ public class MainActivity extends AppCompatActivity {
                         image.setIcon(R.drawable.ic_image);
                         music.setIcon(R.drawable.ic_music_dark);
                         video.setIcon(R.drawable.ic_video_dark);
+                        log.setIcon(R.drawable.ic_log_dark);
 
 
                         break;
@@ -365,16 +429,21 @@ public class MainActivity extends AppCompatActivity {
                         image.setIcon(R.drawable.ic_image_dark);
                         music.setIcon(R.drawable.ic_music);
                         video.setIcon(R.drawable.ic_video_dark);
-
+                        log.setIcon(R.drawable.ic_log_dark);
 
                         break;
                     case 2:
                         image.setIcon(R.drawable.ic_image_dark);
                         music.setIcon(R.drawable.ic_music_dark);
                         video.setIcon(R.drawable.ic_video);
-
+                        log.setIcon(R.drawable.ic_log_dark);
 
                         break;
+                    case 3:
+                        image.setIcon(R.drawable.ic_image_dark);
+                        music.setIcon(R.drawable.ic_music_dark);
+                        video.setIcon(R.drawable.ic_video_dark);
+                        log.setIcon(R.drawable.ic_log);
                 }
 
 
@@ -390,6 +459,10 @@ public class MainActivity extends AppCompatActivity {
                     } else if (selectedTabPos == 2) {
                         viewPagerAdapter.getImageGalleryFragment().removeImageSelection();
                         viewPagerAdapter.getAudioGalleryFragment().removeAudioSelection();
+                    }else if (selectedTabPos == 3) {
+                        viewPagerAdapter.getImageGalleryFragment().removeImageSelection();
+                        viewPagerAdapter.getAudioGalleryFragment().removeAudioSelection();
+                        viewPagerAdapter.getVideoGalleryFragment().removeAudioSelection();
                     }
                 }catch(Exception e){
                     e.printStackTrace();
@@ -425,10 +498,14 @@ public class MainActivity extends AppCompatActivity {
         mNsdHelper.setApStatus(isAp);
         mNsdHelper.initializeNsd();
 
-        mNsdHelper.registerService(transferService.getLocalPort());
-        Log.e("ListeningPort", Build.MODEL+"(port): "+transferService.getLocalPort());
+        //if(startDiscover){
+            mNsdHelper.registerService(transferService.getLocalPort());
+            Log.e("ListeningPort", Build.MODEL+"(port): "+transferService.getLocalPort());
 
-        mNsdHelper.discoverServices();
+            mNsdHelper.discoverServices();
+        //}
+
+        //startDiscover = false;
 
         /*new Thread(new Runnable() {
             @Override
@@ -526,5 +603,7 @@ public class MainActivity extends AppCompatActivity {
         Field f = obj.getClass().getField(name);
         f.set(obj, Enum.valueOf((Class<Enum>) f.getType(), value));
     }
+
+
 }
 

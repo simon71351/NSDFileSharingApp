@@ -13,6 +13,7 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
     private ImageGalleryFragment imageGalleryFragment;
     private AudioGalleryFragment audioGalleryFragment;
     private VideoGalleryFragment videoGalleryFragment;
+    private LogFragment mLogFragment;
 
     public ImageGalleryFragment getImageGalleryFragment(){
         return imageGalleryFragment;
@@ -25,6 +26,8 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
     public VideoGalleryFragment getVideoGalleryFragment(){
         return videoGalleryFragment;
     }
+
+    public LogFragment getLogFragment(){ return mLogFragment; }
 
     public ViewPagerAdapter(FragmentManager fm) {
         super(fm);
@@ -45,6 +48,10 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
             videoGalleryFragment = new VideoGalleryFragment();
             return  videoGalleryFragment;
         }
+        else if(position == 3){
+            mLogFragment = new LogFragment();
+            return mLogFragment;
+        }
         else return new TabFragment(position);    // Which Fragment should be dislpayed by the viewpager for the given position
         // In my case we are showing up only one fragment in all the three tabs so we are
         // not worrying about the position and just returning the TabFragment
@@ -52,7 +59,7 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        return 3;           // As there are only 3 Tabs
+        return 4;           // As there are only 3 Tabs
     }
 
 

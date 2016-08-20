@@ -26,6 +26,21 @@ class FileClient{
     MainActivity mActivity;
     String[] paths;
 
+    long totalFilesSize = 0;
+    long sendTotalFilesSize = 0;
+
+
+    public long getTotalFilesSize() {
+        Log.e("FileSize", "TotalFilesSize: "+totalFilesSize);
+        return totalFilesSize;
+    }
+
+    public long getSendTotalFilesSize() {
+        Log.e("FileSize", "SendTotalFilesSize: "+sendTotalFilesSize);
+        return sendTotalFilesSize;
+    }
+
+
     public FileClient(InetAddress address, int port, Context context, String[] selectedPaths){
         mActivity = (MainActivity) context;
         //sendFile = new File(filepath);
@@ -68,19 +83,34 @@ class FileClient{
                 int byteRead = 0;
                 char[] buffer = new char[1024];
 
-                int idx = paths[0].lastIndexOf("/");
-                String fileNamePart = paths[0].substring(idx);
+                BufferedInputStream bis = null;
 
-                dos.writeUTF(fileNamePart);
-                Log.e("NamePart", "Name part: "+fileNamePart);
-                sendFile = new File(paths[0]);
+                int numOfFiles = paths.length;
+                dos.writeInt(numOfFiles);
 
 
 
-                long size = sendFile.length();
 
-                dos.writeLong(size);  //Second send = file size
-                //output.flush();
+                for(int i = 0; i < numOfFiles; i++){
+                    File file = new File(paths[i]);
+                    totalFilesSize += file.length();
+                }
+
+                for(int i = 0; i < numOfFiles; i++) {
+
+
+                    int idx = paths[i].lastIndexOf("/");
+                    String fileNamePart = paths[i].substring(idx);
+
+                    dos.writeUTF(fileNamePart);
+                    Log.e("NamePart", "Name part: " + fileNamePart);
+                    sendFile = new File(paths[i]);
+
+
+                    long size = sendFile.length();
+
+                    dos.writeLong(size);  //Second send = file size
+                    //output.flush();
 
 //                BufferedReader input = new BufferedReader(new InputStreamReader(new FileInputStream(sendFile)));
 //
@@ -94,11 +124,15 @@ class FileClient{
 //                }
 
 
-                FileInputStream fis = new FileInputStream(sendFile);
-                BufferedInputStream bis = new BufferedInputStream(fis);
+                    FileInputStream fis = new FileInputStream(sendFile);
+                    bis = new BufferedInputStream(fis);
 
-                int theByte = 0;
-                while((theByte = bis.read()) != -1) bos.write(theByte);
+                    int theByte = 0;
+                    while ((theByte = bis.read()) != -1) {
+                        bos.write(theByte);
+                        sendTotalFilesSize++;
+                    }
+                }
 
                 bis.close();
                 dos.close();
@@ -118,4 +152,5 @@ class FileClient{
 
         }
     }
+
 }

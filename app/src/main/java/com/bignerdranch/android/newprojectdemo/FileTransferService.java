@@ -110,34 +110,40 @@ public class FileTransferService {
                     int occurance = 0;
 
                     String fileName = null;
+                    BufferedOutputStream bos = null;
 
-                    fileName = input.readUTF();  //First line read = filename
-                    Log.e("Filename", "Filename: "+fileName);
-                    //Log.e("FileName", fileName);
-                    File dir = new File(Environment.getExternalStorageDirectory()+"/Pictures/FileShare");
+                    int numOfFiles = input.readInt();
 
-                    File[] filesList = dir.listFiles();
-                    for(File file: filesList){
-                        if(file.getName().contains(fileName)){
-                            occurance++;
+                    for(int j = 0; j < numOfFiles; j++) {
+
+
+                        fileName = input.readUTF();  //First line read = filename
+                        Log.e("Filename", "Filename: " + fileName);
+                        //Log.e("FileName", fileName);
+                        File dir = new File(Environment.getExternalStorageDirectory() + "/Pictures/FileShare");
+
+                        File[] filesList = dir.listFiles();
+                        for (File file : filesList) {
+                            if (file.getName().contains(fileName)) {
+                                occurance++;
+                            }
                         }
-                    }
 
-                    if(occurance != 0) fileName += "("+occurance+")";
+                        if (occurance != 0) fileName += "(" + occurance + ")";
 
-                    File createdFile = new File(Environment.getExternalStorageDirectory()+"/Pictures/FileShare/"+fileName);
-                    //if(!createdFile.exists()) createdFile.createNewFile();
+                        File createdFile = new File(Environment.getExternalStorageDirectory() + "/Pictures/FileShare/" + fileName);
+                        //if(!createdFile.exists()) createdFile.createNewFile();
 
-                    //BufferedWriter output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(createdFile)));
+                        //BufferedWriter output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(createdFile)));
 
-                    FileOutputStream fos = new FileOutputStream(createdFile);
-                    BufferedOutputStream bos = new BufferedOutputStream(fos);
+                        FileOutputStream fos = new FileOutputStream(createdFile);
+                        bos = new BufferedOutputStream(fos);
 
-                    int byteRead = 0;
-                    long size = input.readLong(); //Second line read = size
-                    Log.e("Size", "Size: "+Long.toString(size));
+                        int byteRead = 0;
+                        long size = input.readLong(); //Second line read = size
+                        Log.e("Size", "Size: " + Long.toString(size));
 
-                    byte[] buffer = new byte[1024];
+                        byte[] buffer = new byte[1024];
 //                        while((byteRead = input.read(buffer, 0, (int)Math.min(buffer.length, size))) != -1){
 //                            //byte[] bufferByte = new String(buffer).getBytes();   //Thrid and other times read data of the actual file with specified buffer size
 //
@@ -146,9 +152,9 @@ public class FileTransferService {
 //                        }
 
 
+                        for (int i = 0; i < size; i++) bos.write(bis.read());
 
-                    for(int i = 0; i < size; i++) bos.write(bis.read());
-
+                    }
                     bos.close();
                     input.close();
                     connectedSocket.close();

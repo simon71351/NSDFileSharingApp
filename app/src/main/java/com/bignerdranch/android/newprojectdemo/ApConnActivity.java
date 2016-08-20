@@ -23,6 +23,10 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,6 +48,7 @@ public class ApConnActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private String connectedAp = "";
     private boolean showWifiSearchResult = false;
+    BroadcastReceiver mBroadcastReceiver;
 
 
     @Override
@@ -117,6 +122,7 @@ public class ApConnActivity extends AppCompatActivity {
 
 
                     wifiManager.setWifiEnabled(true);
+
                    // startActivityForResult(new Intent(Settings.ACTION_WIFI_SETTINGS), 1);
 
                     WifiConfiguration netConfig = null;
@@ -138,7 +144,7 @@ public class ApConnActivity extends AppCompatActivity {
 
                     //buttonSetupAp.setVisibility(View.GONE);
 
-
+                    disableAp();
                     LayoutInflater inflater = LayoutInflater.from(ApConnActivity.this);
                     View v = inflater.inflate(R.layout.ap_list, null, true);
 
@@ -146,7 +152,7 @@ public class ApConnActivity extends AppCompatActivity {
                     progressBar = (ProgressBar) v.findViewById(R.id.progressBar);
                     progressBar.setVisibility(View.VISIBLE);
 
-                    Dialog dialog = new Dialog(ApConnActivity.this);
+                    final Dialog dialog = new Dialog(ApConnActivity.this);
                     dialog.setContentView(v);
                     dialog.setTitle("Choose AP");
                     dialog.setCancelable(true);
@@ -174,11 +180,14 @@ public class ApConnActivity extends AppCompatActivity {
                                     wifiManager.reconnect();
 
                                     connectedAp = ssid;
+                                    writeToLogFile(ssid);
                                     Toast.makeText(ApConnActivity.this, "Connected ssid = "+connectedAp, Toast.LENGTH_SHORT).show();
+                                    dialog.dismiss();
 
                                     Intent intent = new Intent(ApConnActivity.this, MainActivity.class);
                                     //intent.putExtra("ApStatus", false);
                                     startActivity(intent);
+                                    finish();
 
                                     break;
                                 }
@@ -186,7 +195,7 @@ public class ApConnActivity extends AppCompatActivity {
                         }
                     });
 
-                    finish();
+
 
                 }
             });
@@ -200,7 +209,8 @@ public class ApConnActivity extends AppCompatActivity {
             intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
             intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
 
-            registerReceiver(new BroadcastReceiver() {
+
+            mBroadcastReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context c, Intent intent) {
                     String action = intent.getAction();
@@ -218,7 +228,9 @@ public class ApConnActivity extends AppCompatActivity {
                             Toast.makeText(ApConnActivity.this, "Connected to: " + connectedAp, Toast.LENGTH_SHORT).show();
                     }
                 }
-            }, intentFilter);
+            };
+
+            registerReceiver(mBroadcastReceiver, intentFilter);
 
         }catch(Exception e){
             e.printStackTrace();
@@ -226,6 +238,11 @@ public class ApConnActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mBroadcastReceiver);
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -307,9 +324,11 @@ public class ApConnActivity extends AppCompatActivity {
 
     public void disableAp(){
         WifiConfiguration netConfig = new WifiConfiguration();
-        netConfig.SSID = "FileSharingAp";
+        //netConfig.SSID = "FileSharingAp";
+        netConfig.SSID = readFromLogFile();
 
         int networkId = wifiManager.getConnectionInfo().getNetworkId();
+
         wifiManager.removeNetwork(networkId);
         wifiManager.saveConfiguration();
 
@@ -318,5 +337,39 @@ public class ApConnActivity extends AppCompatActivity {
             boolean apStatus = (boolean) setWifiApMethod.invoke(wifiManager, netConfig, false);
             Log.e(TAG, "Old Ap gets disabled");
         }catch(Throwable t){}
+    }
+
+    public void writeToLogFile(String apName){
+        String FILENAME = "AP_log";
+
+        try{
+            FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_PRIVATE);
+            DataOutputStream dos = new DataOutputStream(fos);
+
+            dos.writeUTF(apName);
+
+            dos.close();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public String  readFromLogFile(){
+        String FILENAME = "AP_log";
+        String apName = null;
+
+        try{
+            FileInputStream fis = openFileInput(FILENAME);
+            DataInputStream dis = new DataInputStream(fis);
+
+            apName = dis.readUTF();
+
+            dis.close();
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return apName;
     }
 }

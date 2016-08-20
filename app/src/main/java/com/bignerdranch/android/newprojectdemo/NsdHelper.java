@@ -264,13 +264,22 @@ public class NsdHelper {
 
             if (addNew) {
                 item.put(MainActivity.ITEM_KEY, splitInfo[1]);
-                ((MainActivity) mContext).getListData().add(item);
-                mContext.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        ((MainActivity) mContext).updateListData();
-                    }
-                });
+//                if(!((MainActivity) mContext).getListData().contains(item)){
+//
+//                }
+
+                if(((MainActivity) mContext).getListData().size() != 1){
+                    ((MainActivity) mContext).getListData().add(item);
+                    mContext.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            ((MainActivity) mContext).updateListData();
+                        }
+                    });
+                }
+
+
+
             }
 
 
@@ -349,6 +358,7 @@ public class NsdHelper {
     }
     
     public void tearDown() {
+        //foundServices.clear();
         mNsdManager.unregisterService(mRegistrationListener);
     }
 }
