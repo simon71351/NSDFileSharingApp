@@ -23,6 +23,11 @@ public class FileTransferService {
     private MainActivity mNsdChatActivity;
     private int mPort;
     private Socket mSocket;
+    private ViewPagerAdapter mViewPagerAdapter;
+
+    public void setViewPagerAdapter(ViewPagerAdapter viewPagerAdapter) {
+        mViewPagerAdapter = viewPagerAdapter;
+    }
 
     public int getLocalPort() {
         return mPort;
@@ -113,6 +118,7 @@ public class FileTransferService {
                     BufferedOutputStream bos = null;
 
                     int numOfFiles = input.readInt();
+                    String[] createdFilePaths = new String[numOfFiles];
 
                     for(int j = 0; j < numOfFiles; j++) {
 
@@ -132,6 +138,7 @@ public class FileTransferService {
                         if (occurance != 0) fileName += "(" + occurance + ")";
 
                         File createdFile = new File(Environment.getExternalStorageDirectory() + "/Pictures/FileShare/" + fileName);
+                        createdFilePaths[j] = createdFile.getAbsolutePath();
                         //if(!createdFile.exists()) createdFile.createNewFile();
 
                         //BufferedWriter output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(createdFile)));
@@ -155,6 +162,9 @@ public class FileTransferService {
                         for (int i = 0; i < size; i++) bos.write(bis.read());
 
                     }
+
+                    mViewPagerAdapter.getLogFragment().writeToLogFile(createdFilePaths, false);
+
                     bos.close();
                     input.close();
                     connectedSocket.close();

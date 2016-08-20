@@ -254,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 try {
-                    String[] selectedPaths = null;
+                     String[] selectedPaths = null;
       //              Toast.makeText(MainActivity.this, "Button gets clicked", Toast.LENGTH_SHORT).show();
                     if(selectedTabPos == 0){
                         selectedPaths = viewPagerAdapter.getImageGalleryFragment().getSelectedImagePaths();
@@ -275,6 +275,7 @@ public class MainActivity extends AppCompatActivity {
                         return;
                     }
 
+
                     String ipAddress = mNsdHelper.getFoundServices().get(0).get("ServiceInfo").ipAddress;
                     int port = mNsdHelper.getFoundServices().get(0).get("ServiceInfo").port;
                     Toast.makeText(MainActivity.this, "Sending to: "+ipAddress, Toast.LENGTH_SHORT).show();
@@ -286,8 +287,32 @@ public class MainActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
+
+
+
                     FileClient fileClient = new FileClient(inetAddress, port, MainActivity.this, selectedPaths);
-                    new DelayTask().execute(fileClient);
+
+                    try{
+                        new DelayTask().execute(fileClient);
+                    }catch(Exception e){
+                        e.printStackTrace();
+                    }
+
+//                    try{
+//                        final String[] finalSelectedPaths = selectedPaths;
+//                        new Thread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                viewPagerAdapter.getLogFragment().writeToLogFile(finalSelectedPaths, true);
+//                            }
+//                        }).start();
+//                    }catch(Exception e){
+//                        e.printStackTrace();
+//                    }
+
+                    viewPagerAdapter.getLogFragment().writeToLogFile(selectedPaths, true);
+
+
 
 
                     if(selectedTabPos == 0){
@@ -313,6 +338,8 @@ public class MainActivity extends AppCompatActivity {
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(viewPagerAdapter);
         //setSupportActionBar(toolbar);
+        transferService.setViewPagerAdapter(viewPagerAdapter);
+
 
         /*
         TabLayout.newTab() method creates a tab view, Now a Tab view is not the view

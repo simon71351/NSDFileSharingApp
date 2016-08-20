@@ -27,6 +27,7 @@
             android:paddingLeft="10sp"
             tools:text="Text for TextView2"/>
     </LinearLayout>
+
     <ImageView
         android:id="@+id/check_icon"
         android:layout_width="0px"
