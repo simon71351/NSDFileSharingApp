@@ -125,6 +125,7 @@ class FileClient{
 
 
                     FileInputStream fis = new FileInputStream(sendFile);
+                    //new GZIPInputStream(fis);
                     bis = new BufferedInputStream(fis);
 
                     int theByte = 0;

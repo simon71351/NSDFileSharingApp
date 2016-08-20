@@ -3,9 +3,6 @@ package com.bignerdranch.android.newprojectdemo;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -20,7 +17,6 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -299,8 +295,17 @@ public class VideoGalleryFragment extends Fragment {
 
                 ((TextView) view.findViewById(R.id.text2)).setText(size);
 
+                //there is thumbnail cursor and video cursor
+                //the below three lines work
+                /*int video_data_index = videocursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
+                String videoPath = videocursor.getString(video_data_index);
 
-                videoThumnailCursor.moveToPosition(position);
+                Bitmap thumb = ThumbnailUtils.createVideoThumbnail(videoPath,
+                        MediaStore.Images.Thumbnails.FULL_SCREEN_KIND);*/
+
+
+
+                /*videoThumnailCursor.moveToPosition(position);
                 String thumbnailPath = videoThumnailCursor.getString(videocursor.getColumnIndex(MediaStore.Video.Media.DATA));
 
                 Bitmap thumb = ThumbnailUtils.createVideoThumbnail(thumbnailPath,
@@ -309,7 +314,7 @@ public class VideoGalleryFragment extends Fragment {
                 Log.e("Bitmap thumbnail", "Thumbnail: "+thumb);
 
                 BitmapFactory.Options options = new BitmapFactory.Options();
-                Bitmap thumbnailImage = BitmapFactory.decodeFile(thumbnailPath, options);
+                Bitmap thumbnailImage = BitmapFactory.decodeFile(thumbnailPath, options);*/
 //
 //                Bitmap thumbnail = MediaStore.Video.Thumbnails.getThumbnail(getActivity().getContentResolver(),
 //                        Long.parseLong(thumbnailID), MediaStore.Video.Thumbnails.MINI_KIND, options);
@@ -317,7 +322,11 @@ public class VideoGalleryFragment extends Fragment {
 //                Uri uri = Uri.withAppendedPath(
 //                        MediaStore.Video.Thumbnails.EXTERNAL_CONTENT_URI, "" + thumbnailID);
 
-                ((ImageView) view.findViewById(R.id.video_thumbnail)).setImageBitmap(thumbnailImage);
+
+                //((ImageView) view.findViewById(R.id.video_thumbnail)).setImageBitmap(thumbnailImage);
+
+                //works with this setting thumb one
+                //((ImageView) view.findViewById(R.id.video_thumbnail)).setImageBitmap(thumb);
 
                 view.findViewById(R.id.check_icon).
                         setVisibility((songList.get(position).isChecked()) ? View.VISIBLE : View.INVISIBLE);
